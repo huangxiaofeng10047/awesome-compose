@@ -1,0 +1,54 @@
+version: "3"
+services:
+
+
+  mysql-master:
+    env_file:
+      - ./.env
+    image: mysql:${MYSQL_VERSION}
+    container_name: mysql-master
+    ports:
+      - "${MYSQL_HOST_PORT}:3309"
+    volumes:
+      - ${MYSQL_CONF_FILE}:/etc/mysql/conf.d/my.cnf:ro
+      - ${MYSQL_DATA_DIR}:/var/lib/mysql/:rw
+    restart: always
+    networks:
+      mysql2master:
+            ipv4_address: 192.167.11.2
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      TZ: "$TZ"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3  
+
+  mysql-slave:
+    env_file:
+      - ./.env
+    image: mysql:${MYSQL_VERSION}
+    container_name: mysql-slave
+    ports:
+      - "${MYSQL_SLAVE_HOST_PORT}:3310"
+    volumes:
+      - ${MYSQL_SLAVE_CONF_FILE}:/etc/mysql/conf.d/my.cnf:ro
+      - ${MYSQL_SLAVE_DATA_DIR}:/var/lib/mysql/:rw
+    restart: always
+    networks:
+      mysql2master:
+            ipv4_address: 192.167.11.3
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_SLAVE_ROOT_PASSWORD}"
+      TZ: "$TZ"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3  
+networks:
+  mysql2master:
+     ipam:
+        config:
+          - subnet: ${MYSQL2MASTER_SUBNET}
