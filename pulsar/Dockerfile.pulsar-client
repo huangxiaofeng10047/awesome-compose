@@ -1,0 +1,6 @@
+FROM apachepulsar/pulsar:4.0.2
+
+COPY ./test_pulsar_consumer.py /root/test_pulsar_consumer.py
+RUN chmod +x  /root/test_pulsar_consumer.py
+COPY ./test_pulsar_producer.py /root/test_pulsar_producer.py
+RUN chmod +x  /root/test_pulsar_producer.py
